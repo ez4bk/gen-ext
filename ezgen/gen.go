@@ -33,6 +33,9 @@ var crudTemplate string
 //go:embed custom.dao.tpl
 var customTemplate string
 
+//go:embed dao.tpl
+var daoTemplate string
+
 func BuildParamsKey(colGo, colGoType string, unique bool) string {
 	if colGoType == "string" && !unique {
 		return fmt.Sprintf("%s %s // optional, likely", colGo, colGoType)
