@@ -11,7 +11,6 @@ import (
 	"text/template"
 
 	"golang.org/x/tools/imports"
-	"gorm.io/gen"
 	"gorm.io/gorm"
 )
 
@@ -44,14 +43,14 @@ func BuildParamsKey(colGo, colGoType string, unique bool) string {
 
 func BuildCand(colGo, columnName, colGoType string, unique bool) string {
 	if colGoType == `string` && !unique {
-		return fmt.Sprintf(`Scopes(dbgen.Cond(!reflect.ValueOf(params.%s).IsZero(), "%s like ?", "%%"+params.%s+"%%")).`, colGo, columnName, colGo)
+		return fmt.Sprintf(`Scopes(ezgen.Cond(!reflect.ValueOf(params.%s).IsZero(), "%s like ?", "%%"+params.%s+"%%")).`, colGo, columnName, colGo)
 	} else {
-		return fmt.Sprintf(`Scopes(dbgen.Cond(!reflect.ValueOf(params.%s).IsZero(), "%s = ?", params.%s)).`, colGo, columnName, colGo)
+		return fmt.Sprintf(`Scopes(ezgen.Cond(!reflect.ValueOf(params.%s).IsZero(), "%s = ?", params.%s)).`, colGo, columnName, colGo)
 	}
 }
 
 func BuildNullable(colGo, columnName string) string {
-	return fmt.Sprintf(`Scopes(dbgen.Nullable(params.%s != nil, "%s = ?", func() any { return *params.%s })).`, colGo, columnName, colGo)
+	return fmt.Sprintf(`Scopes(ezgen.Nullable(params.%s != nil, "%s = ?", func() any { return *params.%s })).`, colGo, columnName, colGo)
 }
 
 func Build(params *GenParams, fileName string) error {
@@ -134,7 +133,7 @@ func BuildCustom(params *GenParams, fileName string) error {
 }
 
 func Params(table, modelStructName string, columnTypes []gorm.ColumnType,
-	dataMap map[string]func(gorm.ColumnType) (dataType string), cfg gen.Config) (*GenParams, error) {
+	dataMap map[string]func(gorm.ColumnType) (dataType string)) (*GenParams, error) {
 	goModel, err := getModuleName()
 	if err != nil {
 		return nil, err
