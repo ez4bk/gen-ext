@@ -132,6 +132,58 @@ func BuildCustom(params *GenParams, fileName string) error {
 	return nil
 }
 
+func BuildDao(modelStructNames []string, fileName string) error {
+	daoNames := make([]string, 0, len(modelStructNames))
+	modelNames := make([]string, 0, len(modelStructNames))
+	for _, modelStructName := range modelStructNames {
+		daoNames = append(daoNames, unCapitalize(modelStructName)+"Dao")
+		modelNames = append(modelNames, modelStructName)
+	}
+	type genParams struct {
+		DaoNameList   []string // dao names
+		ModelNameList []string // model names
+	}
+
+	params := &genParams{
+		DaoNameList:   daoNames,
+		ModelNameList: modelNames,
+	}
+	// 创建一个 buffer 用于存储生成的代码
+	var buf bytes.Buffer
+
+	// 解析和执行模板
+	tmpl, err := template.New("daoInit").Parse(daoTemplate)
+	if err != nil {
+		return err
+	}
+
+	err = tmpl.Execute(&buf, params)
+	if err != nil {
+		return err
+	}
+
+	// 使用 go/format 包格式化代码
+	formattedSource, err := imports.Process(fileName, buf.Bytes(), nil)
+	if err != nil {
+		return err
+	}
+
+	// 生成的代码
+	file, err := os.Create(fileName)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = file.Close()
+	}()
+	_, err = file.Write(formattedSource)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func Params(table, modelStructName string, columnTypes []gorm.ColumnType,
 	dataMap map[string]func(gorm.ColumnType) (dataType string)) (*GenParams, error) {
 	goModel, err := getModuleName()
