@@ -1,4 +1,4 @@
-package gen_ext
+package ezgen
 
 import (
 	"unsafe"
