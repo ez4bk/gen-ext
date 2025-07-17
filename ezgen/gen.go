@@ -192,7 +192,7 @@ func Params(table, modelStructName string, columnTypes []gorm.ColumnType,
 
 	if p.PKType == "" {
 		err = errors.New(fmt.Sprintf("table %s no primary key", table))
-		// return nil, err
+		return nil, err
 	}
 
 	return p, nil
