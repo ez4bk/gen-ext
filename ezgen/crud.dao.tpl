@@ -28,8 +28,8 @@ type List{{.ModelName}}Params struct {
 	Deleted bool // optional
 }
 
-func (dao *{{.DaoName}}) Get(ctx context.Context, id {{.PKType}}, withDeleted ...bool) (result *model.{{.ModelName}}, err error) {
-	err = dao.db.WithContext(ctx).Table(model.TableName{{.ModelName}}).
+func (dao *{{.DaoName}}) Get(id {{.PKType}}, withDeleted ...bool) (result *model.{{.ModelName}}, err error) {
+	err = dao.db.WithContext(context.Background()).Table(model.TableName{{.ModelName}}).
 		Scopes(ezgen.WithDeletedList(withDeleted)).
 		Where("{{ .PrimaryField }} = ?", id).
 		First(&result).
@@ -41,8 +41,8 @@ func (dao *{{.DaoName}}) Get(ctx context.Context, id {{.PKType}}, withDeleted ..
 	return result, nil
 }
 
-func (dao *{{.DaoName}}) GetList(ctx context.Context, id []{{.PKType}}, withDeleted ...bool) (list []*model.{{.ModelName}}, err error) {
-	err = dao.db.WithContext(ctx).Table(model.TableName{{.ModelName}}).
+func (dao *{{.DaoName}}) GetList(id []{{.PKType}}, withDeleted ...bool) (list []*model.{{.ModelName}}, err error) {
+	err = dao.db.WithContext(context.Background()).Table(model.TableName{{.ModelName}}).
 		Scopes(ezgen.WithDeletedList(withDeleted)).
 		Where("{{ .PrimaryField }} IN ?", id).
 		Find(&list).
@@ -55,8 +55,8 @@ func (dao *{{.DaoName}}) GetList(ctx context.Context, id []{{.PKType}}, withDele
 }
 
 // List returns the specified models from database by params
-func (dao *{{.DaoName}}) List(ctx context.Context, params *List{{.ModelName}}Params) (list []*model.{{.ModelName}}, total int64, err error) {
-	tx := dao.db.WithContext(ctx).Table(model.TableName{{.ModelName}}).
+func (dao *{{.DaoName}}) List(params *List{{.ModelName}}Params) (list []*model.{{.ModelName}}, total int64, err error) {
+	tx := dao.db.WithContext(context.Background()).Table(model.TableName{{.ModelName}}).
 		Scopes(ezgen.WithDeleted(params.Deleted)).
 		Scopes(ezgen.Paginate(params.Pager)).
 	{{- range $element := .ParamsScopes}}
@@ -76,21 +76,21 @@ func (dao *{{.DaoName}}) List(ctx context.Context, params *List{{.ModelName}}Par
 	return list, total, nil
 }
 
-func (dao *{{.DaoName}}) Update(ctx context.Context, model *model.{{.ModelName}}, cols ...string) error {
-	return dao.db.WithContext(ctx).
+func (dao *{{.DaoName}}) Update(model *model.{{.ModelName}}, cols ...string) error {
+	return dao.db.WithContext(context.Background()).
 		Model(model).
 		Select(cols).
 		Updates(model).
 		Error
 }
 
-func (dao *{{.DaoName}}) DeleteByID(ctx context.Context, id {{.PKType}}) error {
-	return dao.db.WithContext(ctx).Table(model.TableName{{.ModelName}}).
+func (dao *{{.DaoName}}) DeleteByID(id {{.PKType}}) error {
+	return dao.db.WithContext(context.Background()).Table(model.TableName{{.ModelName}}).
 		Delete(&model.{{.ModelName}}{}, id).Error
 }
 
-func (dao *{{.DaoName}}) Destroy(ctx context.Context, id {{.PKType}}) error {
-	return dao.db.WithContext(ctx).Table(model.TableName{{.ModelName}}).
+func (dao *{{.DaoName}}) Destroy(id {{.PKType}}) error {
+	return dao.db.WithContext(context.Background()).Table(model.TableName{{.ModelName}}).
 		Unscoped().
 		Delete(&model.{{.ModelName}}{}, id).Error
 }
