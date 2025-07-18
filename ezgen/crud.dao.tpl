@@ -63,9 +63,9 @@ func (dao *{{.DaoName}}) List(ctx context.Context, params *List{{.ModelName}}Par
         {{$element}}
     {{- end}}
 	{{ if .Desc }}
-		Order("{{ .PrimaryField }} desc")
+		Order("{{ .SortField }} desc")
 	{{ else }}
-		Order("{{ .PrimaryField }} asc")
+		Order("{{ .SortField }} asc")
 	{{ end }}
 
 	total, err = ezgen.FindAndCountTransaction(tx, &list)

@@ -24,7 +24,8 @@ type GenParams struct {
 	ParamsScopes   []string // params scopes
 	ImportPkgPaths []string
 	PrimaryField   string
-	Desc           bool // params key sort
+	Desc           bool   // params key sort
+	SortField      string // sort field, default is primary key
 }
 
 //go:embed crud.dao.tpl
@@ -205,27 +206,28 @@ func Params(table, modelStructName string, columnTypes []gorm.ColumnType,
 		ImportPkgPaths: nil,
 		PrimaryField:   "id",
 		Desc:           true,
+		SortField:      "id",
 	}
+	sortField := ""
 	for _, columnType := range columnTypes {
 		columnName := columnType.Name()
 		colGo := SnakeToPascalCase(columnName)
 		colGoType := dataMap[strings.ToLower(columnType.DatabaseTypeName())](columnType)
 		unique := false
 
-		if isPrimaryKey, ok := columnType.PrimaryKey(); ok {
-			if isPrimaryKey {
-				p.PrimaryField = columnName
-				p.PKType = colGoType
+		if isPrimaryKey, ok := columnType.PrimaryKey(); ok && isPrimaryKey {
+			p.PrimaryField = columnName
+			p.PKType = colGoType
+			continue
+		}
 
-				if comment, ok := columnType.Comment(); ok {
-					if strings.Contains(comment, "asc") {
-						p.Desc = false
-					} else if strings.Contains(comment, "desc") {
-						p.Desc = true
-					}
-				}
-
-				continue
+		if comment, ok := columnType.Comment(); ok {
+			if strings.Contains(comment, "asc") {
+				sortField = columnName
+				p.Desc = false
+			} else if strings.Contains(comment, "desc") {
+				sortField = columnName
+				p.Desc = true
 			}
 		}
 
@@ -242,6 +244,11 @@ func Params(table, modelStructName string, columnTypes []gorm.ColumnType,
 		} else {
 			p.ParamsScopes = append(p.ParamsScopes, BuildCand(colGo, columnName, colGoType, unique))
 		}
+	}
+	if sortField == "" {
+		p.SortField = p.PrimaryField
+	} else {
+		p.SortField = sortField
 	}
 
 	if p.PKType == "" {
