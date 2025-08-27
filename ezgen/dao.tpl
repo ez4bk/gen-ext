@@ -9,7 +9,6 @@ import (
 
 	"{{.ModelPackage}}/internal/constants"
 
-	"go.uber.org/mock/gomock"
 	"gorm.io/gorm"
 )
 

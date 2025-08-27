@@ -7,8 +7,6 @@ import (
 	"{{.ModelPackage}}/internal/dao/model"
 	"{{.ModelPackage}}/internal/dao/query"
 
-	"{{.ModelPackage}}/cmd/gen/ezgen"
-
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	{{range .ImportPkgPaths}}{{.}} ` + "\n" + `{{end}}

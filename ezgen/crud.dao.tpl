@@ -12,7 +12,7 @@ import (
 	"{{.ModelPackage}}/internal/dao/model"
 	"{{.ModelPackage}}/internal/dao/query"
 
-	"{{.ModelPackage}}/cmd/gen/ezgen"
+	"github.com/ez4bk/gen-ext/ezgen"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
