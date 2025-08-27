@@ -134,14 +134,19 @@ func GetDataMapMySQL(cfg *gen.Config, customMap map[string]func(gorm.ColumnType)
 		"json": func(columnType gorm.ColumnType) (dataType string) {
 			return getDataType(cfg, columnType, "datatypes.JSON")
 		},
-		"enum":      func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
-		"time":      func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "time.Time") },
-		"date":      func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "time.Time") },
-		"datetime":  func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "time.Time") },
-		"timestamp": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "time.Time") },
-		"year":      func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "int32") },
-		"bit":       func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "[]uint8") },
-		"boolean":   func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "bool") },
+		"enum":     func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
+		"time":     func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "time.Time") },
+		"date":     func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "time.Time") },
+		"datetime": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "time.Time") },
+		"timestamp": func(columnType gorm.ColumnType) (dataType string) {
+			if columnType.Name() == "deleted_at" {
+				return "gorm.DeletedAt"
+			}
+			return getDataType(cfg, columnType, "time.Time")
+		},
+		"year":    func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "int32") },
+		"bit":     func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "[]uint8") },
+		"boolean": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "bool") },
 	}
 	for k, v := range customMap {
 		dataMap[k] = v
