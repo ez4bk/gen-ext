@@ -29,7 +29,7 @@ var DefaultModelOpt = []gen.ModelOpt{
 		return f
 	}),
 	gen.FieldModify(func(f gen.Field) gen.Field {
-		if f.ColumnName == "deleted_at" {
+		if f.ColumnName == "is_deleted" {
 			// 添加删除标志
 			f.GORMTag.Set("softDelete", "flag")
 		}

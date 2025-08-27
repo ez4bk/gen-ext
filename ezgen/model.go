@@ -16,31 +16,14 @@ func TypeNullable(columnType gorm.ColumnType, dataType string) string {
 	}
 }
 
-// func getCandStr(colGo, colGoType string) string {
-// 	switch colGoType {
-// 	case "bool":
-// 		return "true"
-// 	case "int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "float32", "float64":
-// 		return fmt.Sprintf(`params.%s != 0`, colGo)
-// 	case "string":
-// 		return fmt.Sprintf(`params.%s != ""`, colGo)
-// 	case "[]byte", "[]uint8":
-// 		return fmt.Sprintf(`len(params.%s) > 0`, colGo)
-// 	case "time.Time":
-// 		return fmt.Sprintf(`!params.%s.IsZero()`, colGo)
-// 	default:
-// 		return "true"
-// 	}
-// }
-
 var DefaultDataMapMySQL = map[string]func(gorm.ColumnType) (dataType string){
 	"numeric": func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "int32") },
 	"integer": func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "int32") },
 	"tinyint": func(columnType gorm.ColumnType) (dataType string) {
 		ct, _ := columnType.ColumnType()
 		if strings.HasPrefix(ct, "tinyint(1)") {
-			if columnType.Name() == "deleted_at" {
-				return "gorm.DeletedAt"
+			if columnType.Name() == "is_deleted" {
+				return "soft_delete.DeletedAt"
 			}
 			return TypeNullable(columnType, "bool")
 		}
@@ -93,7 +76,7 @@ var DefaultDataMapMySQL = map[string]func(gorm.ColumnType) (dataType string){
 	"mediumblob": func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "[]byte") },
 	"longblob":   func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "[]byte") },
 	"text":       func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "string") },
-	"json":       func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "string") },
+	"json":       func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "datatypes.JSON") },
 	"enum":       func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "string") },
 	"time":       func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "time.Time") },
 	"date":       func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "time.Time") },
@@ -104,24 +87,6 @@ var DefaultDataMapMySQL = map[string]func(gorm.ColumnType) (dataType string){
 	"boolean":    func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "bool") },
 }
 
-var DefaultDataMapClickHouse = map[string]func(gorm.ColumnType) (dataType string){
-	"Int8":    func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "int8") },
-	"Int16":   func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "int16") },
-	"Int32":   func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "int32") },
-	"Int64":   func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "int64") },
-	"UInt8":   func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "uint8") },
-	"UInt16":  func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "uint16") },
-	"UInt32":  func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "uint32") },
-	"UInt64":  func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "uint64") },
-	"Float32": func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "float32") },
-	"Float64": func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "float64") },
-	"String":  func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "string") },
-
-	"AggregateFunction(max, Float64)": func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "float64") },
-	"AggregateFunction(min, Float64)": func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "float64") },
-	"AggregateFunction(avg, Float64)": func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "float64") },
-}
-
 func GetDataMapMySQL(cfg *gen.Config, customMap map[string]func(gorm.ColumnType) (dataType string)) map[string]func(gorm.ColumnType) (dataType string) {
 	dataMap := map[string]func(gorm.ColumnType) (dataType string){
 		"numeric": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "int32") },
@@ -129,8 +94,8 @@ func GetDataMapMySQL(cfg *gen.Config, customMap map[string]func(gorm.ColumnType)
 		"tinyint": func(columnType gorm.ColumnType) (dataType string) {
 			ct, _ := columnType.ColumnType()
 			if strings.HasPrefix(ct, "tinyint(1)") {
-				if columnType.Name() == "deleted_at" {
-					return "gorm.DeletedAt"
+				if columnType.Name() == "is_deleted" {
+					return "soft_delete.DeletedAt"
 				}
 				return getDataType(cfg, columnType, "bool")
 			}
@@ -159,12 +124,12 @@ func GetDataMapMySQL(cfg *gen.Config, customMap map[string]func(gorm.ColumnType)
 		"tinytext":   func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
 		"mediumtext": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
 		"longtext":   func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
-		"binary":     func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "[]byte]") },
-		"varbinary":  func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "[]byte]") },
-		"tinyblob":   func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "[]byte]") },
-		"blob":       func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "[]byte]") },
-		"mediumblob": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "[]byte]") },
-		"longblob":   func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "[]byte]") },
+		"binary":     func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "[]byte") },
+		"varbinary":  func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "[]byte") },
+		"tinyblob":   func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "[]byte") },
+		"blob":       func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "[]byte") },
+		"mediumblob": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "[]byte") },
+		"longblob":   func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "[]byte") },
 		"text":       func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
 		"json": func(columnType gorm.ColumnType) (dataType string) {
 			return getDataType(cfg, columnType, "datatypes.JSON")
@@ -182,11 +147,6 @@ func GetDataMapMySQL(cfg *gen.Config, customMap map[string]func(gorm.ColumnType)
 		dataMap[k] = v
 	}
 	return dataMap
-}
-
-func GetDataMapClickHouse(cfg *gen.Config,
-	customMap map[string]func(gorm.ColumnType) (dataType string)) map[string]func(gorm.ColumnType) (dataType string) {
-	return DefaultDataMapClickHouse
 }
 
 func getDataType(cfg *gen.Config, columnType gorm.ColumnType, targetType string) (dataType string) {

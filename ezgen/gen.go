@@ -31,7 +31,7 @@ type GenParams struct {
 //go:embed crud.dao.tpl
 var crudTemplate string
 
-//go:embed custom.dao.tpl
+//go:embed interface.dao.tpl
 var customTemplate string
 
 //go:embed dao.tpl
