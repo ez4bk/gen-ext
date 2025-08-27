@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime/debug"
 	"strings"
 	"text/template"
@@ -32,7 +33,7 @@ type GenParams struct {
 var crudTemplate string
 
 //go:embed interface.dao.tpl
-var customTemplate string
+var interfaceTemplate string
 
 //go:embed dao.tpl
 var daoTemplate string
@@ -57,12 +58,25 @@ func BuildNullable(colGo, columnName string) string {
 	return fmt.Sprintf(`Scopes(ezgen.Nullable(params.%s != nil, "%s = ?", func() any { return *params.%s })).`, colGo, columnName, colGo)
 }
 
-func Build(params *GenParams, fileName string) error {
+func Generate(params *GenParams, targetDir, entityName string) (err error) {
+	crudFileName := filepath.Join(targetDir, entityName+".crud.go")
+	interfaceFileName := filepath.Join(targetDir, entityName+".go")
+	err = generateCrud(params, crudFileName)
+	if err != nil {
+		return err
+	}
+	err = generateInterface(params, interfaceFileName)
+	if err != nil {
+		return err
+	}
+	return
+}
+
+func generateCrud(params *GenParams, fileName string) error {
 	// 创建一个 buffer 用于存储生成的代码
 	var buf bytes.Buffer
-
 	// 解析和执行模板
-	tmpl, err := template.New("dao").Parse(crudTemplate)
+	tmpl, err := template.New("crud").Parse(crudTemplate)
 	if err != nil {
 		return err
 	}
@@ -94,17 +108,16 @@ func Build(params *GenParams, fileName string) error {
 	return nil
 }
 
-func BuildCustom(params *GenParams, fileName string) error {
-	// 文件存在不生成
+func generateInterface(params *GenParams, fileName string) error {
+	// 不覆盖已存在的文件
 	if fileExists(fileName) {
 		return nil
 	}
 
 	// 创建一个 buffer 用于存储生成的代码
 	var buf bytes.Buffer
-
 	// 解析和执行模板
-	tmpl, err := template.New("dao-custom").Parse(customTemplate)
+	tmpl, err := template.New("dao").Parse(interfaceTemplate)
 	if err != nil {
 		return err
 	}
@@ -136,7 +149,7 @@ func BuildCustom(params *GenParams, fileName string) error {
 	return nil
 }
 
-func BuildDao(modelStructNames []string, fileName string) error {
+func GenerateDao(modelStructNames []string, fileName string) error {
 	daoNames := make([]string, 0, len(modelStructNames))
 	modelNames := make([]string, 0, len(modelStructNames))
 	for _, modelStructName := range modelStructNames {
@@ -188,7 +201,7 @@ func BuildDao(modelStructNames []string, fileName string) error {
 	return nil
 }
 
-func Params(table, modelStructName string, columnTypes []gorm.ColumnType,
+func BuildParams(table, modelStructName string, columnTypes []gorm.ColumnType,
 	dataMap map[string]func(gorm.ColumnType) (dataType string)) (*GenParams, error) {
 	goModel, err := getModuleName()
 	if err != nil {
