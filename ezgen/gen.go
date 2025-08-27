@@ -157,11 +157,15 @@ func GenerateDao(modelStructNames []string, fileName string) error {
 		modelNames = append(modelNames, modelStructName)
 	}
 	type genParams struct {
+		ModelPackage  string
 		DaoNameList   []string // dao names
 		ModelNameList []string // model names
 	}
 
+	pkgName, _ := getModuleName()
+
 	params := &genParams{
+		ModelPackage:  pkgName,
 		DaoNameList:   daoNames,
 		ModelNameList: modelNames,
 	}
