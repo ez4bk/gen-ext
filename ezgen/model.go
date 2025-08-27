@@ -16,77 +16,6 @@ func TypeNullable(columnType gorm.ColumnType, dataType string) string {
 	}
 }
 
-var DefaultDataMapMySQL = map[string]func(gorm.ColumnType) (dataType string){
-	"numeric": func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "int32") },
-	"integer": func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "int32") },
-	"tinyint": func(columnType gorm.ColumnType) (dataType string) {
-		ct, _ := columnType.ColumnType()
-		if strings.HasPrefix(ct, "tinyint(1)") {
-			if columnType.Name() == "is_deleted" {
-				return "soft_delete.DeletedAt"
-			}
-			return TypeNullable(columnType, "bool")
-		}
-		if strings.HasSuffix(ct, "unsigned") {
-			return TypeNullable(columnType, "uint8")
-		}
-		return TypeNullable(columnType, "int8")
-	},
-	"smallint": func(columnType gorm.ColumnType) (dataType string) {
-		ct, _ := columnType.ColumnType()
-		if strings.HasSuffix(ct, "unsigned") {
-			return TypeNullable(columnType, "uint16")
-		}
-		return TypeNullable(columnType, "int16")
-	},
-	"mediumint": func(columnType gorm.ColumnType) (dataType string) {
-		ct, _ := columnType.ColumnType()
-		if strings.HasSuffix(ct, "unsigned") {
-			return TypeNullable(columnType, "uint32")
-		}
-		return TypeNullable(columnType, "int32")
-	},
-	"int": func(columnType gorm.ColumnType) (dataType string) {
-		ct, _ := columnType.ColumnType()
-		if strings.HasSuffix(ct, "unsigned") {
-			return TypeNullable(columnType, "uint32")
-		}
-		return TypeNullable(columnType, "int32")
-	},
-	"bigint": func(columnType gorm.ColumnType) (dataType string) {
-		ct, _ := columnType.ColumnType()
-		if strings.HasSuffix(ct, "unsigned") {
-			return TypeNullable(columnType, "uint64")
-		}
-		return TypeNullable(columnType, "int64")
-	},
-	"float":      func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "float64") },
-	"real":       func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "float64") },
-	"double":     func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "float64") },
-	"decimal":    func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "float64") },
-	"char":       func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "string") },
-	"varchar":    func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "string") },
-	"tinytext":   func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "string") },
-	"mediumtext": func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "string") },
-	"longtext":   func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "string") },
-	"binary":     func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "[]byte") },
-	"varbinary":  func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "[]byte") },
-	"tinyblob":   func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "[]byte") },
-	"blob":       func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "[]byte") },
-	"mediumblob": func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "[]byte") },
-	"longblob":   func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "[]byte") },
-	"text":       func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "string") },
-	"json":       func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "datatypes.JSON") },
-	"enum":       func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "string") },
-	"time":       func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "time.Time") },
-	"date":       func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "time.Time") },
-	"datetime":   func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "time.Time") },
-	"timestamp":  func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "time.Time") },
-	"year":       func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "int32") },
-	"bit":        func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "[]uint8") },
-	"boolean":    func(columnType gorm.ColumnType) (dataType string) { return TypeNullable(columnType, "bool") },
-}
-
 func GetDataMapMySQL(cfg *gen.Config, customMap map[string]func(gorm.ColumnType) (dataType string)) map[string]func(gorm.ColumnType) (dataType string) {
 	dataMap := map[string]func(gorm.ColumnType) (dataType string){
 		"numeric": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "int32") },
@@ -134,10 +63,25 @@ func GetDataMapMySQL(cfg *gen.Config, customMap map[string]func(gorm.ColumnType)
 		"json": func(columnType gorm.ColumnType) (dataType string) {
 			return getDataType(cfg, columnType, "datatypes.JSON")
 		},
-		"enum":     func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
-		"time":     func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "time.Time") },
-		"date":     func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "time.Time") },
-		"datetime": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "time.Time") },
+		"enum": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
+		"time": func(columnType gorm.ColumnType) (dataType string) {
+			if columnType.Name() == "deleted_at" {
+				return "gorm.DeletedAt"
+			}
+			return getDataType(cfg, columnType, "time.Time")
+		},
+		"date": func(columnType gorm.ColumnType) (dataType string) {
+			if columnType.Name() == "deleted_at" {
+				return "gorm.DeletedAt"
+			}
+			return getDataType(cfg, columnType, "time.Time")
+		},
+		"datetime": func(columnType gorm.ColumnType) (dataType string) {
+			if columnType.Name() == "deleted_at" {
+				return "gorm.DeletedAt"
+			}
+			return getDataType(cfg, columnType, "time.Time")
+		},
 		"timestamp": func(columnType gorm.ColumnType) (dataType string) {
 			if columnType.Name() == "deleted_at" {
 				return "gorm.DeletedAt"
