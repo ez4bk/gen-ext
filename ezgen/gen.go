@@ -41,14 +41,19 @@ var daoTemplate string
 func BuildParamsKey(colGo, colGoType string, unique bool) string {
 	if colGoType == "string" && !unique {
 		return fmt.Sprintf("%s %s // optional, likely", colGo, colGoType)
+	} else if colGoType == "time.Time" {
+		return fmt.Sprintf("%sRange ezgen.TimeRange // optional", colGo)
 	} else {
 		return fmt.Sprintf("%s %s // optional", colGo, colGoType)
 	}
 }
 
-func BuildCand(colGo, columnName, colGoType string, unique bool) string {
+func BuildScope(colGo, columnName, colGoType string, unique bool) string {
 	if colGoType == `string` && !unique {
 		return fmt.Sprintf(`Scopes(ezgen.Cond(!reflect.ValueOf(params.%s).IsZero(), "%s like ?", "%%"+params.%s+"%%")).`, colGo, columnName, colGo)
+	} else if colGoType == "time.Time" {
+		return fmt.Sprintf(`Scopes(ezgen.Cond(!reflect.ValueOf(params.%sRange).IsZero(), "? <= %s and %s <= ?", 
+params.%sRange, params.%sRange")).`, colGo, columnName, columnName, colGo, colGo)
 	} else {
 		return fmt.Sprintf(`Scopes(ezgen.Cond(!reflect.ValueOf(params.%s).IsZero(), "%s = ?", params.%s)).`, colGo, columnName, colGo)
 	}
@@ -259,7 +264,7 @@ func BuildParams(table, modelStructName string, columnTypes []gorm.ColumnType,
 		if strings.HasPrefix(colGoType, "*") {
 			p.ParamsScopes = append(p.ParamsScopes, BuildNullable(colGo, columnName))
 		} else {
-			p.ParamsScopes = append(p.ParamsScopes, BuildCand(colGo, columnName, colGoType, unique))
+			p.ParamsScopes = append(p.ParamsScopes, BuildScope(colGo, columnName, colGoType, unique))
 		}
 	}
 	if sortField == "" {
