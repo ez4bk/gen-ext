@@ -32,7 +32,7 @@ func Paginate(p Pager) func(db *gorm.DB) *gorm.DB {
 		if p == nil || reflect.ValueOf(p).IsNil() || p.GetPageSize() <= 0 || p.GetPageIndex() <= 0 {
 			return db
 		}
-		return db.Offset((p.GetPageIndex() - 1) * p.GetPageSize()).Limit(p.GetPageSize())
+		return db.Offset(int((p.GetPageIndex() - 1) * p.GetPageSize())).Limit(int(p.GetPageSize()))
 	}
 }
 
@@ -79,7 +79,7 @@ func PaginateGen(p Pager) func(db gen.Dao) gen.Dao {
 		if p == nil || reflect.ValueOf(p).IsNil() || p.GetPageSize() <= 0 || p.GetPageIndex() <= 0 {
 			return db
 		}
-		return db.Offset((p.GetPageIndex() - 1) * p.GetPageSize()).Limit(p.GetPageSize())
+		return db.Offset(int((p.GetPageIndex() - 1) * p.GetPageSize())).Limit(int(p.GetPageSize()))
 	}
 }
 
