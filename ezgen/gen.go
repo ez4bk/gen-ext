@@ -261,7 +261,7 @@ func BuildParams(table, modelStructName string, columnTypes []gorm.ColumnType,
 			continue
 		}
 		p.ParamsKey = append(p.ParamsKey, BuildParamsKey(colGo, colGoType, unique))
-		if strings.HasPrefix(colGoType, "*") {
+		if strings.HasPrefix(colGoType, "*") && !strings.Contains(colGoType, "time.Time") {
 			p.ParamsScopes = append(p.ParamsScopes, BuildNullable(colGo, columnName))
 		} else {
 			p.ParamsScopes = append(p.ParamsScopes, BuildScope(colGo, columnName, colGoType, unique))
