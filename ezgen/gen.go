@@ -51,9 +51,9 @@ func BuildParamsKey(colGo, colGoType string, unique bool) string {
 func BuildScope(colGo, columnName, colGoType string, unique bool) string {
 	if colGoType == `string` && !unique {
 		return fmt.Sprintf(`Scopes(ezgen.Cond(!reflect.ValueOf(params.%s).IsZero(), "%s like ?", "%%"+params.%s+"%%")).`, colGo, columnName, colGo)
-	} else if colGoType == "time.Time" {
+	} else if strings.Contains(colGoType, "time.Time") {
 		return fmt.Sprintf(`Scopes(ezgen.Cond(!reflect.ValueOf(params.%sRange).IsZero(), "? <= %s and %s <= ?", 
-params.%sRange, params.%sRange")).`, colGo, columnName, columnName, colGo, colGo)
+params.%sRange.Start, params.%sRange.End")).`, colGo, columnName, columnName, colGo, colGo)
 	} else {
 		return fmt.Sprintf(`Scopes(ezgen.Cond(!reflect.ValueOf(params.%s).IsZero(), "%s = ?", params.%s)).`, colGo, columnName, colGo)
 	}
