@@ -52,8 +52,7 @@ func BuildScope(colGo, columnName, colGoType string, unique bool) string {
 	if colGoType == `string` && !unique {
 		return fmt.Sprintf(`Scopes(ezgen.Cond(!reflect.ValueOf(params.%s).IsZero(), "%s like ?", "%%"+params.%s+"%%")).`, colGo, columnName, colGo)
 	} else if strings.Contains(colGoType, "time.Time") {
-		return fmt.Sprintf(`Scopes(ezgen.Cond(!reflect.ValueOf(params.%sRange).IsZero(), "? <= %s and %s <= ?", 
-params.%sRange.Start, params.%sRange.End")).`, colGo, columnName, columnName, colGo, colGo)
+		return fmt.Sprintf(`Scopes(ezgen.Cond(!reflect.ValueOf(params.%sRange).IsZero(), "? <= %s and %s <= ?",params.%sRange.Start, params.%sRange.End")).`, colGo, columnName, columnName, colGo, colGo)
 	} else {
 		return fmt.Sprintf(`Scopes(ezgen.Cond(!reflect.ValueOf(params.%s).IsZero(), "%s = ?", params.%s)).`, colGo, columnName, colGo)
 	}
