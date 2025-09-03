@@ -41,7 +41,7 @@ var daoTemplate string
 func BuildParamsKey(colGo, colGoType string, unique bool) string {
 	if colGoType == "string" && !unique {
 		return fmt.Sprintf("%s %s // optional, likely", colGo, colGoType)
-	} else if colGoType == "time.Time" {
+	} else if strings.Contains(colGoType, "time.Time") {
 		return fmt.Sprintf("%sRange ezgen.TimeRange // optional", colGo)
 	} else {
 		return fmt.Sprintf("%s %s // optional", colGo, colGoType)
