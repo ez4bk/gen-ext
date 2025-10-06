@@ -14,20 +14,6 @@ import (
 var DefaultModelOpt = []gen.ModelOpt{
 	// 乐观锁
 	gen.FieldType("version", "optimisticlock.Version"),
-	// json字段处理
-	gen.FieldModify(func(f gen.Field) gen.Field {
-		if f.GORMTag["type"][0] == "json" {
-			// 添加序列化器标签
-			f.GORMTag.Set("serializer", "json")
-			// 替换字段类型
-			if _, ok := f.GORMTag["not null"]; ok {
-				f.Type = SnakeToPascalCase(f.ColumnName)
-			} else {
-				f.Type = "*" + SnakeToPascalCase(f.ColumnName)
-			}
-		}
-		return f
-	}),
 	gen.FieldModify(func(f gen.Field) gen.Field {
 		if f.ColumnName == "is_deleted" {
 			// 添加删除标志
