@@ -256,7 +256,7 @@ func BuildParams(table, modelStructName string, columnTypes []gorm.ColumnType,
 			unique = flag
 		}
 
-		if columnName == "version" || columnName == "deleted_at" {
+		if columnName == "version" || columnName == "deleted_at" || columnName == "is_deleted" {
 			continue
 		}
 		p.ParamsKey = append(p.ParamsKey, BuildParamsKey(colGo, colGoType, unique))

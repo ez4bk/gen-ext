@@ -98,6 +98,83 @@ func GetDataMapMySQL(cfg *gen.Config, customMap map[string]func(gorm.ColumnType)
 	return dataMap
 }
 
+func GetDataMapPostgreSQL(cfg *gen.Config, customMap map[string]func(gorm.ColumnType) (
+	dataType string)) map[string]func(gorm.ColumnType) (dataType string) {
+	dataMap := map[string]func(gorm.ColumnType) (dataType string){
+		"numeric": func(columnType gorm.ColumnType) (dataType string) {
+			return getDataType(cfg, columnType,
+				"float64")
+		},
+		"integer": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "int32") },
+		"smallint": func(columnType gorm.ColumnType) (dataType string) {
+			return getDataType(cfg, columnType, "int16")
+		},
+		"bigint": func(columnType gorm.ColumnType) (dataType string) {
+			return getDataType(cfg, columnType, "int64")
+		},
+		"float": func(columnType gorm.ColumnType) (dataType string) {
+			return getDataType(cfg, columnType, "float64")
+		},
+		"real": func(columnType gorm.ColumnType) (dataType string) {
+			return getDataType(cfg, columnType,
+				"float32")
+		},
+		"double":    func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "float64") },
+		"decimal":   func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "float64") },
+		"character": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
+		"varchar":   func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
+		"text":      func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
+		"bytea": func(columnType gorm.ColumnType) (dataType string) {
+			return getDataType(cfg, columnType,
+				"[]byte")
+		},
+		"json": func(columnType gorm.ColumnType) (dataType string) {
+			return getDataType(cfg, columnType, "datatypes.JSON")
+		},
+		"jsonb": func(columnType gorm.ColumnType) (dataType string) {
+			return getDataType(cfg, columnType, "datatypes.JSON")
+		},
+		"enum": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
+		"time": func(columnType gorm.ColumnType) (dataType string) {
+			if columnType.Name() == "deleted_at" {
+				return "gorm.DeletedAt"
+			}
+			return getDataType(cfg, columnType, "time.Time")
+		},
+		"date": func(columnType gorm.ColumnType) (dataType string) {
+			if columnType.Name() == "deleted_at" {
+				return "gorm.DeletedAt"
+			}
+			return getDataType(cfg, columnType, "time.Time")
+		},
+		"timestamp": func(columnType gorm.ColumnType) (dataType string) {
+			if columnType.Name() == "deleted_at" {
+				return "gorm.DeletedAt"
+			}
+			return getDataType(cfg, columnType, "time.Time")
+		},
+		"timestampz": func(columnType gorm.ColumnType) (dataType string) {
+			if columnType.Name() == "deleted_at" {
+				return "gorm.DeletedAt"
+			}
+			return getDataType(cfg, columnType, "time.Time")
+		},
+		"boolean": func(columnType gorm.ColumnType) (dataType string) {
+			if columnType.Name() == "is_deleted" {
+				return "soft_delete.DeletedAt"
+			}
+			return getDataType(cfg, columnType, "bool")
+		},
+		"uuid": func(columnType gorm.ColumnType) (dataType string) {
+			return getDataType(cfg, columnType, "string")
+		},
+	}
+	for k, v := range customMap {
+		dataMap[k] = v
+	}
+	return dataMap
+}
+
 func getDataType(cfg *gen.Config, columnType gorm.ColumnType, targetType string) (dataType string) {
 	ct, _ := columnType.ColumnType()
 	if cfg.FieldSignable && strings.HasPrefix(targetType, "int") && strings.HasSuffix(ct, "unsigned") {
