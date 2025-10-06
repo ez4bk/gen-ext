@@ -101,29 +101,27 @@ func GetDataMapMySQL(cfg *gen.Config, customMap map[string]func(gorm.ColumnType)
 func GetDataMapPostgreSQL(cfg *gen.Config, customMap map[string]func(gorm.ColumnType) (
 	dataType string)) map[string]func(gorm.ColumnType) (dataType string) {
 	dataMap := map[string]func(gorm.ColumnType) (dataType string){
+		"int2": func(columnType gorm.ColumnType) (dataType string) {
+			return getDataType(cfg, columnType, "int16")
+		},
+		"int4": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "int32") },
+		"int8": func(columnType gorm.ColumnType) (dataType string) {
+			return getDataType(cfg, columnType, "int64")
+		},
+		"float4": func(columnType gorm.ColumnType) (dataType string) {
+			return getDataType(cfg, columnType, "float64")
+		},
+		"float8": func(columnType gorm.ColumnType) (dataType string) {
+			return getDataType(cfg, columnType,
+				"float64")
+		},
 		"numeric": func(columnType gorm.ColumnType) (dataType string) {
 			return getDataType(cfg, columnType,
 				"float64")
 		},
-		"integer": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "int32") },
-		"smallint": func(columnType gorm.ColumnType) (dataType string) {
-			return getDataType(cfg, columnType, "int16")
-		},
-		"bigint": func(columnType gorm.ColumnType) (dataType string) {
-			return getDataType(cfg, columnType, "int64")
-		},
-		"float": func(columnType gorm.ColumnType) (dataType string) {
-			return getDataType(cfg, columnType, "float64")
-		},
-		"real": func(columnType gorm.ColumnType) (dataType string) {
-			return getDataType(cfg, columnType,
-				"float32")
-		},
-		"double":    func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "float64") },
-		"decimal":   func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "float64") },
-		"character": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
-		"varchar":   func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
-		"text":      func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
+		"bpchar":  func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
+		"varchar": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
+		"text":    func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
 		"bytea": func(columnType gorm.ColumnType) (dataType string) {
 			return getDataType(cfg, columnType,
 				"[]byte")
@@ -141,7 +139,7 @@ func GetDataMapPostgreSQL(cfg *gen.Config, customMap map[string]func(gorm.Column
 			}
 			return getDataType(cfg, columnType, "time.Time")
 		},
-		"date": func(columnType gorm.ColumnType) (dataType string) {
+		"timez": func(columnType gorm.ColumnType) (dataType string) {
 			if columnType.Name() == "deleted_at" {
 				return "gorm.DeletedAt"
 			}
@@ -159,7 +157,13 @@ func GetDataMapPostgreSQL(cfg *gen.Config, customMap map[string]func(gorm.Column
 			}
 			return getDataType(cfg, columnType, "time.Time")
 		},
-		"boolean": func(columnType gorm.ColumnType) (dataType string) {
+		"date": func(columnType gorm.ColumnType) (dataType string) {
+			if columnType.Name() == "deleted_at" {
+				return "gorm.DeletedAt"
+			}
+			return getDataType(cfg, columnType, "time.Time")
+		},
+		"bool": func(columnType gorm.ColumnType) (dataType string) {
 			if columnType.Name() == "is_deleted" {
 				return "soft_delete.DeletedAt"
 			}
