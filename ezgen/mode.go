@@ -14,7 +14,7 @@ import (
 var DefaultModelOpt = []gen.ModelOpt{
 	// 乐观锁
 	gen.FieldType("version", "optimisticlock.Version"),
-	gen.FieldType("is_deleted", "soft_deleted.DeletedAt"),
+	gen.FieldType("is_deleted", "soft_delete.DeletedAt"),
 	gen.FieldModify(func(f gen.Field) gen.Field {
 		if f.ColumnName == "is_deleted" {
 			// 添加删除标志
