@@ -36,9 +36,6 @@ func GetDataMapMySQL(cfg *gen.Config, customMap map[string]func(gorm.ColumnType)
 		"mediumint": func(columnType gorm.ColumnType) (dataType string) {
 			return getDataType(cfg, columnType, "int32")
 		},
-		"int": func(columnType gorm.ColumnType) (dataType string) {
-			return getDataType(cfg, columnType, "int32")
-		},
 		"bigint": func(columnType gorm.ColumnType) (dataType string) {
 			return getDataType(cfg, columnType, "int64")
 		},
@@ -66,25 +63,25 @@ func GetDataMapMySQL(cfg *gen.Config, customMap map[string]func(gorm.ColumnType)
 		"enum": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
 		"time": func(columnType gorm.ColumnType) (dataType string) {
 			if columnType.Name() == "deleted_at" {
-				return "gorm.DeletedAt"
+				return getDataType(cfg, columnType, "gorm.DeletedAt")
 			}
 			return getDataType(cfg, columnType, "time.Time")
 		},
 		"date": func(columnType gorm.ColumnType) (dataType string) {
 			if columnType.Name() == "deleted_at" {
-				return "gorm.DeletedAt"
+				return getDataType(cfg, columnType, "gorm.DeletedAt")
 			}
 			return getDataType(cfg, columnType, "time.Time")
 		},
 		"datetime": func(columnType gorm.ColumnType) (dataType string) {
 			if columnType.Name() == "deleted_at" {
-				return "gorm.DeletedAt"
+				return getDataType(cfg, columnType, "gorm.DeletedAt")
 			}
 			return getDataType(cfg, columnType, "time.Time")
 		},
 		"timestamp": func(columnType gorm.ColumnType) (dataType string) {
 			if columnType.Name() == "deleted_at" {
-				return "gorm.DeletedAt"
+				return getDataType(cfg, columnType, "gorm.DeletedAt")
 			}
 			return getDataType(cfg, columnType, "time.Time")
 		},
