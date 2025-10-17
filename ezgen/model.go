@@ -179,6 +179,40 @@ func GetDataMapPostgreSQL(cfg *gen.Config, customMap map[string]func(gorm.Column
 	return dataMap
 }
 
+func GetDataMapClickHouse(cfg *gen.Config, customMap map[string]func(gorm.ColumnType) (
+	dataType string)) map[string]func(gorm.ColumnType) (dataType string) {
+	dataMap := map[string]func(gorm.ColumnType) (dataType string){
+		"Int8":    func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "int8") },
+		"Int16":   func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "int16") },
+		"Int32":   func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "int32") },
+		"Int64":   func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "int64") },
+		"UInt8":   func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "uint8") },
+		"UInt16":  func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "uint16") },
+		"UInt32":  func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "uint32") },
+		"UInt64":  func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "uint64") },
+		"Float32": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "float32") },
+		"Float64": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "float64") },
+		"String":  func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
+
+		"AggregateFunction(max, Float64)": func(columnType gorm.ColumnType) (dataType string) {
+			return getDataType(
+				cfg, columnType, "float64")
+		},
+		"AggregateFunction(min, Float64)": func(columnType gorm.ColumnType) (dataType string) {
+			return getDataType(
+				cfg, columnType, "float64")
+		},
+		"AggregateFunction(avg, Float64)": func(columnType gorm.ColumnType) (dataType string) {
+			return getDataType(
+				cfg, columnType, "float64")
+		},
+	}
+	for k, v := range customMap {
+		dataMap[k] = v
+	}
+	return dataMap
+}
+
 func getDataType(cfg *gen.Config, columnType gorm.ColumnType, targetType string) (dataType string) {
 	ct, _ := columnType.ColumnType()
 	if cfg.FieldSignable && strings.HasPrefix(targetType, "int") && strings.HasSuffix(ct, "unsigned") {
