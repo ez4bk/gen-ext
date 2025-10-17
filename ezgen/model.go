@@ -199,6 +199,10 @@ func GetDataMapClickHouse(cfg *gen.Config, customMap map[string]func(gorm.Column
 				"float64")
 		},
 		"string": func(columnType gorm.ColumnType) (dataType string) { return getDataType(cfg, columnType, "string") },
+		"datetime": func(columnType gorm.ColumnType) (dataType string) {
+			return getDataType(cfg, columnType,
+				"time.Time")
+		},
 
 		"aggregatefunction(max, float64)": func(columnType gorm.ColumnType) (dataType string) {
 			return getDataType(
