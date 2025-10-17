@@ -39,6 +39,9 @@ func GetDataMapMySQL(cfg *gen.Config, customMap map[string]func(gorm.ColumnType)
 		"bigint": func(columnType gorm.ColumnType) (dataType string) {
 			return getDataType(cfg, columnType, "int64")
 		},
+		"int": func(columnType gorm.ColumnType) (dataType string) {
+			return getDataType(cfg, columnType, "int")
+		},
 		"float": func(columnType gorm.ColumnType) (dataType string) {
 			return getDataType(cfg, columnType, "float64")
 		},
