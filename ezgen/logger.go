@@ -46,7 +46,7 @@ func (l *DbLog) LogMode(level logger.LogLevel) logger.Interface {
 // Info print info
 func (l *DbLog) Info(ctx context.Context, msg string, data ...interface{}) {
 	if l.LogLevel >= logger.Info {
-		logc.Infow(ctx, "Gorm info",
+		logc.Infow(ctx, "Gorm",
 			logc.Field("info", fmt.Sprintf(msg, data...)),
 			logc.Field("file", utils.FileWithLineNum()),
 		)
@@ -56,7 +56,7 @@ func (l *DbLog) Info(ctx context.Context, msg string, data ...interface{}) {
 // Warn print warn messages
 func (l *DbLog) Warn(ctx context.Context, msg string, data ...interface{}) {
 	if l.LogLevel >= logger.Warn {
-		logc.Infow(ctx, "Gorm Warn",
+		logc.Infow(ctx, "Gorm",
 			logc.Field("warn", fmt.Sprintf(msg, data...)),
 			logc.Field("file", utils.FileWithLineNum()),
 		)
@@ -66,7 +66,7 @@ func (l *DbLog) Warn(ctx context.Context, msg string, data ...interface{}) {
 // Error print error messages
 func (l *DbLog) Error(ctx context.Context, msg string, data ...interface{}) {
 	if l.LogLevel >= logger.Error {
-		logc.Errorw(ctx, "Gorm Error",
+		logc.Errorw(ctx, "Gorm",
 			logc.Field("err", fmt.Sprintf(msg, data...)),
 			logc.Field("file", utils.FileWithLineNum()),
 		)
@@ -86,7 +86,7 @@ func (l *DbLog) Trace(ctx context.Context, begin time.Time, fc func() (string, i
 	case err != nil && l.LogLevel >= logger.Error && (!errors.Is(err, gorm.ErrRecordNotFound) || !l.IgnoreRecordNotFoundError):
 		sql, rows := fc()
 		if rows == -1 {
-			logc.Errorw(ctx, "Gorm Trace Error",
+			logc.Errorw(ctx, "Gorm Trace",
 				logc.Field("err", err),
 				logc.Field("file", utils.FileWithLineNum()),
 				logc.Field("rows", "-"),
@@ -94,7 +94,7 @@ func (l *DbLog) Trace(ctx context.Context, begin time.Time, fc func() (string, i
 				logc.Field("sql", sql),
 			)
 		} else {
-			logc.Errorw(ctx, "Gorm Trace Error",
+			logc.Errorw(ctx, "Gorm Trace",
 				logc.Field("Err", err),
 				logc.Field("File", utils.FileWithLineNum()),
 				logc.Field("Rows", rows),
@@ -106,7 +106,7 @@ func (l *DbLog) Trace(ctx context.Context, begin time.Time, fc func() (string, i
 		sql, rows := fc()
 		slowLog := fmt.Sprintf("SLOW SQL >= %v", l.SlowThreshold)
 		if rows == -1 {
-			logc.Infow(ctx, "Gorm Trace Info",
+			logc.Sloww(ctx, "Gorm Trace",
 				logc.Field("file", utils.FileWithLineNum()),
 				logc.Field("slowLog", slowLog),
 				logc.Field("rows", "-"),
@@ -114,7 +114,7 @@ func (l *DbLog) Trace(ctx context.Context, begin time.Time, fc func() (string, i
 				logc.Field("sql", sql),
 			)
 		} else {
-			logc.Infow(ctx, "Gorm Trace Info",
+			logc.Sloww(ctx, "Gorm Trace",
 				logc.Field("file", utils.FileWithLineNum()),
 				logc.Field("slowLog", slowLog),
 				logc.Field("rows", rows),
@@ -125,14 +125,14 @@ func (l *DbLog) Trace(ctx context.Context, begin time.Time, fc func() (string, i
 	case l.LogLevel == logger.Info:
 		sql, rows := fc()
 		if rows == -1 {
-			logc.Infow(ctx, "Gorm Trace Info",
+			logc.Infow(ctx, "Gorm Trace",
 				logc.Field("file", utils.FileWithLineNum()),
 				logc.Field("rows", "-"),
 				logc.Field("duration", float64(elapsed.Nanoseconds())/1e6),
 				logc.Field("sql", sql),
 			)
 		} else {
-			logc.Infow(ctx, "Gorm Trace Info",
+			logc.Infow(ctx, "Gorm Trace",
 				logc.Field("file", utils.FileWithLineNum()),
 				logc.Field("rows", rows),
 				logc.Field("duration", float64(elapsed.Nanoseconds())/1e6),
