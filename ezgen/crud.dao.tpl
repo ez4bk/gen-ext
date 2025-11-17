@@ -97,7 +97,7 @@ func (dao *{{.DaoName}}) Update(ctx context.Context, data *model.{{.ModelName}})
 
 func (dao *{{.DaoName}}) Delete(ctx context.Context, id {{.PKType}}) (err error) {
 	return dao.db.WithContext(ctx).Table(model.TableName{{.ModelName}}).
-		Select(clause.Associations)
+		Select(clause.Associations).
 		Delete(&model.{{.ModelName}}{}, id).Error
 }
 
