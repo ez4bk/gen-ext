@@ -25,6 +25,7 @@ type GenParams struct {
 	ParamsScopes   []string // params scopes
 	ImportPkgPaths []string
 	PrimaryField   string
+	PrimaryGoField string
 	Desc           bool   // params key sort
 	SortField      string // sort field, default is primary key
 }
@@ -226,6 +227,7 @@ func BuildParams(table, modelStructName string, columnTypes []gorm.ColumnType,
 		ParamsScopes:   make([]string, 0),
 		ImportPkgPaths: nil,
 		PrimaryField:   "id",
+		PrimaryGoField: "ID",
 		Desc:           true,
 		SortField:      "id",
 	}
@@ -239,6 +241,7 @@ func BuildParams(table, modelStructName string, columnTypes []gorm.ColumnType,
 		if isPrimaryKey, ok := columnType.PrimaryKey(); ok && isPrimaryKey {
 			p.PrimaryField = columnName
 			p.PKType = colGoType
+			p.PrimaryGoField = colGo
 			continue
 		}
 
@@ -301,6 +304,9 @@ func unCapitalize(s string) string {
 func SnakeToPascalCase(s string) string {
 	if s == "" {
 		return ""
+	}
+	if s == "id" {
+		return "ID"
 	}
 
 	words := strings.Split(s, "_") // 将字符串按 "_" 分割成单词切片

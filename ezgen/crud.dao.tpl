@@ -98,12 +98,12 @@ func (dao *{{.DaoName}}) Update(ctx context.Context, data *model.{{.ModelName}})
 func (dao *{{.DaoName}}) Delete(ctx context.Context, id {{.PKType}}) (err error) {
 	return dao.db.WithContext(ctx).Table(model.TableName{{.ModelName}}).
 		Select(clause.Associations).
-		Delete(&model.{{.ModelName}}{}, id).Error
+		Delete(&model.{{.ModelName}}{ {{.PrimaryGoField}}: id }).Error
 }
 
 func (dao *{{.DaoName}}) Destroy(ctx context.Context, id {{.PKType}}) (err error) {
 	return dao.db.WithContext(ctx).Table(model.TableName{{.ModelName}}).
 		Select(clause.Associations).
 		Unscoped().
-		Delete(&model.{{.ModelName}}{}, id).Error
+		Delete(&model.{{.ModelName}}{ {{.PrimaryGoField}}: id }).Error
 }
