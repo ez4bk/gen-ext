@@ -305,14 +305,14 @@ func SnakeToPascalCase(s string) string {
 	if s == "" {
 		return ""
 	}
-	if s == "id" {
-		return "ID"
-	}
 
 	words := strings.Split(s, "_") // 将字符串按 "_" 分割成单词切片
 	result := ""
 	for _, word := range words {
 		if len(word) > 0 {
+			if word == "id" {
+				result += "ID"
+			}
 			// 将每个单词的首字母转换为大写，并将剩余部分与首字母连接起来
 			result += strings.ToUpper(string(word[0])) + word[1:]
 		}
