@@ -312,9 +312,11 @@ func SnakeToPascalCase(s string) string {
 		if len(word) > 0 {
 			if word == "id" {
 				result += "ID"
+			} else {
+				// 将每个单词的首字母转换为大写，并将剩余部分与首字母连接起来
+				result += strings.ToUpper(string(word[0])) + word[1:]
 			}
-			// 将每个单词的首字母转换为大写，并将剩余部分与首字母连接起来
-			result += strings.ToUpper(string(word[0])) + word[1:]
+
 		}
 	}
 	return result
